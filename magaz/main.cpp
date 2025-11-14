@@ -455,7 +455,7 @@ void AddNewItem()
 			}
 		}
 
-		system("pause");
+		
 
 		while (exit)
 		{
@@ -487,6 +487,11 @@ void AddNewItem()
 				std::swap(priceArr, priceArrTemp);
 
 				delete[]idArrTemp, nameArrTemp, countArrTemp, priceArrTemp;
+
+				system("cls");
+				std::cout << "\n\tТовар успешно добавлен!";
+				system("pause");
+				break;
 			}
 			else if (choose == "2")
 			{
