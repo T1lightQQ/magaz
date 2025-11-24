@@ -56,6 +56,7 @@ void ShowUsers();
 bool CheckLogin(const std::string& str);
 bool CheckPass(const std::string& str);
 void AddNewUsers();
+void DeleteUser();
 
 // ------------------------------
 
@@ -680,7 +681,6 @@ void SwapArr(T* Arr, T* Arr2, size_t SizeArr)
 	}
 }
 
-
 void Start()
 {
 	std::string choose;
@@ -1088,6 +1088,32 @@ void AddNewUsers()
 		{
 			break;
 		}
+	}
+}
+
+void DeleteUser()
+{
+	std::string chooseNumber, checkPass, choose;
+	int userNumber = 0, isAdmin = 0;
+	
+	while (true)
+	{
+		if (currentStatus == userStatus[0])
+		{
+			if (userSize < 2)
+			{
+				std::cout << "Нет доступных пользователей для удаления";
+				Sleep(1500);
+				return;
+			}
+			ShowUsers();
+			isAdmin = 1;
+		}
+		else
+		{
+			
+		}
+		std::cout << "\nВыберите номер пользователя для удаления или \"exit\" для выхода";
 	}
 }
 
