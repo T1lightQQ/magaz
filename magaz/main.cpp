@@ -63,7 +63,24 @@ void AddNewUsers();
 void ChangePass();
 void DeleteUser();
 
-// ------------------------------
+// ------Продажи-------------
+size_t checkSize = 0;
+int* idArrCheck;
+std::string* nameArrCheck;
+unsigned int* countArrCheck;
+double* priceArrCheck;
+double* totalPriceArrCheck;
+
+double cash = 10000 + rand() % 7000;
+double cashIncome = 0.0;
+double bankIncome = 0.0;
+
+void Selling();
+void CheckArrAppend();
+
+// ----------------------------
+
+
 
 int main()
 {
@@ -1326,5 +1343,104 @@ void DeleteUser()
 			Err();
 		}
 	}
+}
+
+void Selling()
+{
+	std::string chooseId, chooseCount;
+	unsigned int id = 0, count = 0, index = 0;
+	double totalSum = 0.0;
+
+	while (true)
+	{
+		ShowStorage();
+
+		std::cout << "Введите ID товара для покупки или \"exit\" для завершения покупок - ";
+		Getline(chooseId);
+
+		if (chooseId == "exit")
+		{
+			// тут оплата
+			delete[]idArrCheck, nameArrCheck, countArrCheck, priceArrCheck, totalPriceArrCheck;
+
+			break;
+		}
+
+		if (IsNumber(chooseId))
+		{
+			id = std::stoi(chooseId) - 1;
+
+			if (id < 0 || id > storageSize - 1)
+			{
+				std::cout << "Ошибка ID!\n";
+				Sleep(1500);
+				continue;
+			}
+		}
+
+		std::cout << "Введите кол-во товара \"exit\" для выбора другого товара- ";
+		Getline(chooseCount);
+		if (chooseId == "exit")
+		{
+			std::cout << "Отмена покупки товара - " << nameArr[id] << "\n";
+			Sleep(1500);
+			continue;
+		}
+
+		if (IsNumber(chooseCount))
+		{
+			count = std::stoi(chooseCount) - 1;
+
+			if (count < 1 || count > countArr[id])
+			{
+				std::cout << "Ошибка кол-ва! Максимум - " << countArr[id] << "\n";
+				Sleep(1500);
+				continue;
+			}
+		}
+
+		CheckArrAppend();
+		index++;
+		idArrCheck[index] = idArr[id];
+		nameArrCheck[index] = nameArr[id];
+		priceArrCheck[index] = priceArr[id];
+		countArrCheck[index] = count;
+		totalPriceArrCheck[index] = count * priceArr[id];
+
+		std::cout << "\nТовар добавлен в чек\n\n";
+		Sleep(1000);
+	}
+
+
+
+
+}
+
+void CheckArrAppend()
+{
+	checkSize++;
+	int* idArrCheckTemp;
+	std::string* nameArrCheckTemp = new std::string[checkSize];
+	unsigned int* countArrCheckTemp = new unsigned int[checkSize];
+	double* priceArrCheckTemp = new double[checkSize];
+	double* totalPriceArrCheckTemp = new double[checkSize];
+
+	// !!!!!
+
+	SwapArr(idArrCheckTemp, idArrCheck, checkSize - 1);
+	SwapArr(nameArrCheckTemp, nameArrCheck, checkSize - 1);
+	SwapArr(countArrCheckTemp, countArrCheck, checkSize - 1);
+	SwapArr(priceArrCheckTemp, priceArrCheck, checkSize - 1);
+	SwapArr(totalPriceArrCheckTemp, totalPriceArrCheck, checkSize - 1);
+
+	std::swap(idArrCheckTemp, idArrCheck);
+	std::swap(nameArrCheckTemp, nameArrCheck);
+	std::swap(countArrCheckTemp, countArrCheck);
+	std::swap(priceArrCheckTemp, priceArrCheck);
+	std::swap(totalPriceArrCheckTemp, totalPriceArrCheck);
+
+	delete[]idArrCheckTemp, nameArrCheckTemp, countArrCheckTemp, priceArrCheckTemp, totalPriceArrCheckTemp;
+
+
 }
 
