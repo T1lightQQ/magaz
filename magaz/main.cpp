@@ -15,6 +15,7 @@ std::string* loginArr = new std::string[userSize]{ "login", "login1" };
 std::string* passArr = new std::string[userSize]{ "parol", "parol1" };
 std::string* statusArr = new std::string[userSize]{ userStatus[0], userStatus[2] };
 double* awardArr = new double[userSize] {0.0, 0.0};
+unsigned int* userIdArr = new unsigned int[userSize] {1, 2};
 std::string currentStatus;
 int currentId = 0;
 // ---------------------------------------
@@ -81,7 +82,12 @@ double bankIncome = 0.0;
 
 void Selling();
 void CheckArrAppend();
+void PrintCheck(double& totalSum);
+void StorageReturner();
 void ShowInCome();
+
+double Discount(double& totalSum);
+double DiscountOfItem(double& totalSum);
 
 // ----------------------------
 
@@ -185,8 +191,6 @@ void ShowStorage(int mode)
 			std::cout << idArr[i] << "\t" << std::left << std::setw(25) << nameArr[i]
 				<< "\t" << priceArr[i] << "\t" << countArr[i] << "\n";
 		}
-		system("pause");
-		system("cls");
 	}
 	else if (mode == 1)
 	{
@@ -914,7 +918,7 @@ void ShowSuperAdminMenu()
 
 		if (choose == "1" && storageSize > 0)
 		{
-
+			Selling();
 		}
 		else if (choose == "2" && storageSize > 0)
 		{
@@ -1016,7 +1020,6 @@ void ShowUserMenu()
 		}
 	}
 }
-
 
 bool CheckLogin(const std::string& str)
 {
@@ -1264,23 +1267,28 @@ void AddNewUsers()
 				std::string* loginArrTemp = new std::string[userSize];
 				std::string* passArrTemp = new std::string[userSize];
 				std::string* statusArrTemp = new std::string[userSize];
+				double* awardArrTemp = new double[userSize];
+				unsigned int* userIdArrTemp = new unsigned int[userSize];
 
 				SwapArr(loginArrTemp, loginArr, userSize - 1);
 				SwapArr(passArrTemp, passArr, userSize - 1);
 				SwapArr(statusArrTemp, statusArr, userSize - 1);
+				SwapArr(awardArrTemp, awardArr, userSize - 1);
+				SwapArr(userIdArrTemp, userIdArr, userSize - 1);
 
 				loginArrTemp[userSize - 1] = newLogin;
 				passArrTemp[userSize - 1] = newPass;
 				statusArrTemp[userSize - 1] = newRole;
+				awardArrTemp[userSize - 1] = 0.0;
+				userIdArrTemp[userSize - 1] = userSize;
 
 				std::swap(loginArr, loginArrTemp);
 				std::swap(passArr, passArrTemp);
 				std::swap(statusArr, statusArrTemp);
+				std::swap(awardArrTemp, awardArr);
+				std::swap(userIdArrTemp, userIdArr);
 
-				delete[] loginArrTemp; 
-				delete[]passArrTemp;
-				delete[]statusArrTemp;
-
+				delete[] loginArrTemp, passArrTemp, statusArrTemp, awardArrTemp, userIdArrTemp;
 				std::cout << "Идет подготовка... ";
 				Sleep(2000);
 				std::cout << "Пользователь успешно добавлен!\n\n";
@@ -1464,8 +1472,10 @@ void DeleteUser()
 					std::string* loginArrTemp = new std::string[userSize];
 					std::string* passArrTemp = new std::string[userSize];
 					std::string* statusArrTemp = new std::string[userSize];
+					double* awardArrTemp = new double[userSize];
+					unsigned int* userIdArrTemp = new unsigned int[userSize];
 
-					for (size_t i = 0, c = 0; i < storageSize; i++, c++)
+					for (size_t i = 0, c = 0; i < userSize; i++, c++)
 					{
 						if (userNumber == c)
 						{
@@ -1474,15 +1484,16 @@ void DeleteUser()
 						loginArrTemp[i] = loginArr[c];
 						passArrTemp[i] = passArr[c];
 						statusArrTemp[i] = statusArr[c];
+						awardArrTemp[i] = awardArr[c];
+						userIdArrTemp[i] = userIdArr[c];
 					}
 					std::swap(loginArrTemp, loginArr);
 					std::swap(passArrTemp, passArr);
 					std::swap(statusArrTemp, statusArr);
+					std::swap(awardArrTemp, awardArr);
+					std::swap(userIdArrTemp, userIdArr);
 
-					delete[] loginArrTemp;
-					delete[]passArrTemp;
-					delete[]statusArrTemp;
-
+					delete[]loginArrTemp, passArrTemp, statusArrTemp, awardArrTemp, userIdArrTemp;
 					std::cout << "Идет подготовка... ";
 					Sleep(2000);
 					std::cout << "Пользователь успешно удалён!\n\n";
@@ -1502,24 +1513,132 @@ void DeleteUser()
 			Err();
 		}
 	}
+
+
+
 }
 
 void Selling()
 {
-	std::string chooseId, chooseCount;
-	unsigned int id = 0, count = 0, index = 0;
-	double totalSum = 0.0;
+	std::string chooseId, chooseCount, choose, chooseCash;
+	unsigned int id = 0, count = 0, index = -1;
+	double totalSum = 0.0, money = 0.0;
+	bool isFirst = false;
 
 	while (true)
 	{
-		ShowStorage();
+		ShowStorage(0);
 
-		std::cout << "Введите ID товара для покупки или \"exit\" для завершения покупок - ";
+		std::cout << "\nВведите ID товара для покупки или \"exit\" для завершения покупок - ";
 		Getline(chooseId);
 
 		if (chooseId == "exit")
 		{
-			// тут оплата
+			if (!isFirst)
+			{
+				std::cout << "Выход без покупок\n";
+				Sleep(1500);
+				break;
+			}
+		}
+			system("cls");
+			PrintCheck(totalSum);
+			std::cout << "\nПодтвердите покупку?\n1 - Да\n2 - Добавить ещё товар\n3 - Отмена\nВвод - ";
+			Getline(choose);
+			if (choose == "1")
+			{
+				while (true)
+				{
+					system("cls");
+					std::cout << "Выберите способ оплаты\n1 - Наличными\n2 - Безнал\nВвод - ";
+					Getline(choose);
+					if (choose == "1")
+					{
+						std::cout << "Введите кол-во наличных - ";
+						Getline(chooseCash);
+						if (IsNumber(chooseCash))
+						{
+							money = std::stod(chooseCash);
+							if (money < totalSum)
+							{
+								std::cout << "Недостаточно средств!\n";
+								Sleep(1500);
+								continue;
+
+							}
+							else if (money - totalSum > cash)
+							{
+								std::cout << "Нет возможности дать сдачи. Повторите попытку\n";
+								Sleep(1500);
+								continue;
+							}
+							else
+							{
+								std::cout << "Ваши " << money << "\n";
+								Sleep(400);
+								std::cout << "Оплата прошла успешно. Сдача " << money - totalSum << " рублей\n";
+								Sleep(1800);
+								cash -= money - totalSum;
+								cashIncome += totalSum;
+								awardArr[currentId] += totalSum;
+								system("cls");
+								break;
+							}// Проверить -------------------
+						}
+					}
+					else if (choose == "2")
+					{
+						system("cls");
+						std::cout << "Приложите карту\n\n";
+						Sleep(1000);
+						if (rand() % 10 <= 2)
+						{
+							for (size_t i = 0; i < 5; i++)
+							{
+								std::cout << i + 1 << "\t";
+								Sleep(800);
+							}
+							std::cout << "\nСоединение не установлено. Повторите попытку\n";
+						}
+						else
+						{
+							for (size_t i = 0; i < 5; i++)
+							{
+								std::cout << i + 1 << "\t";
+								Sleep(800);
+							}
+							std::cout << "\nОплата прошла успешно\n\nСпасибо за покупку!\n\n";
+							Sleep(2500);
+							bankIncome += totalSum;
+							awardArr[currentId] += totalSum;
+							system("cls");
+							break;
+						}
+					}
+					else if (choose == "Raze" || choose == "raze")
+					{
+
+					}
+				}
+			}
+			else if (choose == "2")
+			{
+				continue;
+			}
+			else if (choose == "3")
+			{
+				std::cout << "Отмена покупки!\n";
+				StorageReturner();
+				Sleep(1500);
+				system("cls");
+				return;
+			}
+			else
+			{
+				Err();
+				continue;
+			}
+			system("pause");
 			delete[]idArrCheck;
 			delete[]nameArrCheck;
 			delete[]countArrCheck;
@@ -1528,7 +1647,7 @@ void Selling()
 
 
 			break;
-		}
+		
 
 		if (IsNumber(chooseId))
 		{
@@ -1542,7 +1661,7 @@ void Selling()
 			}
 		}
 
-		std::cout << "Введите кол-во товара \"exit\" для выбора другого товара- ";
+		std::cout << "\nВведите кол-во товара \"exit\" для выбора другого товара - ";
 		Getline(chooseCount);
 		if (chooseId == "exit")
 		{
@@ -1555,7 +1674,7 @@ void Selling()
 		{
 			count = std::stoi(chooseCount) - 1;
 
-			if (count < 1 || count > countArr[id])
+			if (count < 0 || count > countArr[id])
 			{
 				std::cout << "Ошибка кол-ва! Максимум - " << countArr[id] << "\n";
 				Sleep(1500);
@@ -1570,14 +1689,16 @@ void Selling()
 		priceArrCheck[index] = priceArr[id];
 		countArrCheck[index] = count;
 		totalPriceArrCheck[index] = count * priceArr[id];
+		countArr[id] -= count;
+		totalSum += totalPriceArrCheck[index];
+		totalSum = Discount(totalSum);
+		totalSum = DiscountOfItem(totalSum);
+
 
 		std::cout << "\nТовар добавлен в чек\n\n";
+		isFirst = true;
 		Sleep(1000);
 	}
-
-
-
-
 }
 
 void CheckArrAppend()
@@ -1612,6 +1733,32 @@ void CheckArrAppend()
 
 }
 
+void PrintCheck(double& totalSum)
+{
+	std::cout << "№\t" << "ID\t" << std::left << std::setw(25) << "Название товара\t\t" <<
+		"Цена за ед\t" << "Кол-во\t" << "Итого\n";
+
+	for (size_t i = 0; i < checkSize; i++)
+	{
+		std::cout << i + 1 << "\t" << idArrCheck[i] << "\t" << std::left << std::setw(25) << nameArrCheck[i]
+			<< "\t" << priceArrCheck[i] << "\t\t" << countArrCheck[i] << "\t" << totalPriceArrCheck[i] << "\n";
+	}
+}
+
+void StorageReturner()
+{
+	for (size_t i = 0; i < checkSize; i++)
+	{
+		countArr[idArrCheck[i] - 1] += countArrCheck[i];
+	}
+	delete[] idArrCheck;
+	delete[] nameArrCheck;
+	delete[] countArrCheck;
+	delete[] priceArrCheck;
+	delete[] totalPriceArrCheck;
+
+}
+
 void ShowInCome()
 {
 	system("cls");
@@ -1622,4 +1769,26 @@ void ShowInCome()
 	std::cout << "Сумма ваших продаж: " << awardArr[currentId] << "\n";
 	system("pause");
 	system("cls");
+}
+
+double Discount(double& totalSum)
+{
+	if (totalSum >= 100000.0)
+	{
+		std::cout << "Т.к ваши покупки в сумме более 100000, вам позволена скидка в размере 20%!";
+		return totalSum - (totalSum / 100 * 20);
+	}
+}
+
+double DiscountOfItem(double& totalSum)
+{
+	for (int i = 0; i < storageSize; i++)
+	{
+		if (idArrCheck[i + 1] % 2 == 0)
+		{
+			std::cout << "Т.к вы выбрали только четные товары, вам дается ЧЕТНАЯ скидка, 20% на все покупки!";
+			return totalSum - (totalSum / 100 * 20);
+		}
+	}
+	
 }
