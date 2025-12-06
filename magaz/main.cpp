@@ -31,6 +31,7 @@ double* priceArr;
 bool staticStorageCreated = false;
 
 void CreateStorage();
+void CreateNewStorage();
 void ShowStorage(int mode = 0);
 void AddStorageItem();
 void RemoveStorageItem();
@@ -133,6 +134,42 @@ void CreateStorage()
 	SwapArr(priceArr, price, storageSize);
 	SwapArr(countArr, count, storageSize);
 	SwapArr(nameArr, name, storageSize);
+}
+
+void CreateNewStorage()
+{
+	staticStorageCreated = true;
+	std::string size;
+	while (true)
+	{
+		std::cout << "\nСоздание нового склада\nСколько позиций склада будет?\nВвод: ";
+		Getline(size);
+		if (IsNumber(size))
+		{
+			break;
+		}
+		else
+		{
+			Err();
+		}
+	}
+	if (!IsNumber(size))
+	{
+		Err();
+	}
+	else
+	{
+		idArr = new int[storageSize];
+		nameArr = new std::string[storageSize];
+		countArr = new unsigned int[storageSize];
+		priceArr = new double[storageSize];
+		staticStorageCreated = true;
+
+		for (int i = 0; i < std::stoi(size); i++)
+		{
+			AddNewItem();
+		}
+	}
 }
 
 void ShowStorage(int mode)
@@ -421,7 +458,7 @@ void AddNewItem()
 	double price = 0.0;
 	unsigned int count = 0;
 	bool exit = true;
-	while (true)
+	while (exit)
 	{
 		while (true)
 		{
@@ -453,7 +490,7 @@ void AddNewItem()
 			std::cout << "\tДобавление нового товара\n\tВведите \"exit\" для выхода";
 			std::cout << "\n\tВведите кол-во нового товара: ";
 			Getline(newCount);
-			if (newName == "exit")
+			if (newCount == "exit")
 			{
 				std::cout << "Операция добавления прервана";
 				Sleep(1500);
@@ -480,7 +517,7 @@ void AddNewItem()
 			std::cout << "\tДобавление нового товара\n\tВведите \"exit\" для выхода";
 			std::cout << "\n\tВведите цену нового товара: ";
 			Getline(newPrice);
-			if (newName == "exit")
+			if (newPrice == "exit")
 			{
 				std::cout << "Операция добавления прервана";
 				Sleep(1500);
@@ -558,6 +595,7 @@ void AddNewItem()
 		{
 			break;
 		}
+		exit = false;
 	}
 }
 
@@ -745,8 +783,12 @@ void Start()
 				{
 					if (staticStorageCreated == false)
 					{
-						CreateStorage();
+						CreateNewStorage();
 					}
+					system("cls");
+					//ShowStorage();
+					ShowSuperAdminMenu();
+					//system("pause");
 					break;
 				}
 				else
@@ -840,7 +882,7 @@ inline void Err()
 
 bool IsNumber(const std::string& str)
 {
-	if (str.size() <= 0 || str.size() >= 10)
+	if (str.size() <= 0 || str.size() >= 100)
 	{
 		std::cout << "\n\tНекорректный ввод";
 		std::cout << "\n\tНекорректная длина числа\n\n";
